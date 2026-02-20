@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vyapar Setu - Local Shop Discovery & Management Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-primary">
+    <!-- Header Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-accent-orange rounded-full flex items-center justify-center">
+                        <i class="fas fa-store text-white"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-primary">Vyapar Setu</h1>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#" onclick="showPage('home')" class="text-gray-700 hover:text-accent-orange transition">Home</a>
+                    <a href="#" onclick="showPage('explore')" class="text-gray-700 hover:text-accent-orange transition">Explore</a>
+                    <a href="#" onclick="showPage('community')" class="text-gray-700 hover:text-accent-orange transition">Community</a>
+                    <a href="#" onclick="showPage('help')" class="text-gray-700 hover:text-accent-orange transition">Help</a>
+                </nav>
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="text-gray-700 hover:text-accent-orange transition">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="notification-dot"></span>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button onclick="showCartSidebar()" class="text-gray-700 hover:text-accent-orange transition relative">
+                            <i class="fas fa-shopping-cart text-xl"></i>
+                            <span id="cartCount" class="absolute -top-2 -right-2 bg-accent-orange text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" style="display: none;">0</span>
+                        </button>
+                    </div>
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center space-x-2 text-gray-700 hover:text-accent-orange transition">
+                            <img src="https://picsum.photos/seed/user123/40/40.jpg" alt="User" class="w-10 h-10 rounded-full">
+                            <i class="fas fa-chevron-down text-sm"></i>
+                        </button>
+                        <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50">
+                            <a href="#" onclick="showPage('dashboard')" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Dashboard</a>
+                            <a href="#" onclick="showPage('profile')" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Profile</a>
+                            <a href="#" onclick="showPage('orders')" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">My Orders</a>
+                            <hr class="my-2">
+                            <a href="#" onclick="logout()" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container mx-auto px-4 py-6">
+        <!-- Home/Discovery Page -->
+        <div id="homePage" class="page">
+            <!-- Hero Section -->
+            <section class="bg-white rounded-2xl p-8 mb-8 card-shadow fade-in">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="md:w-1/2 mb-6 md:mb-0">
+                        <h2 class="text-3xl font-bold text-primary mb-4">Discover Local Shops Near You</h2>
+                        <p class="text-gray-600 mb-6">Support local businesses, find unique products, and connect with your community.</p>
+                        <div class="relative">
+                            <input type="text" placeholder="Search for shops, products, or categories..." class="w-full px-4 py-3 pr-12 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                            <button class="absolute right-0 top-0 h-full px-4 bg-accent-orange text-white rounded-full hover:bg-orange-600 transition">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="md:w-1/2 md:pl-8">
+                        <img src="https://picsum.photos/seed/localshop/500/300.jpg" alt="Local Shop" class="rounded-xl">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Quick Categories -->
+            <section class="mb-8">
+                <h3 class="text-xl font-semibold text-primary mb-4">Shop by Category</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <div class="bg-white rounded-xl p-4 text-center hover-lift cursor-pointer" onclick="filterByCategory('grocery')">
+                        <div class="w-16 h-16 mx-auto mb-2 bg-orange-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-shopping-basket text-2xl accent-orange"></i>
+                        </div>
+                        <p class="text-sm font-medium">Grocery</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 text-center hover-lift cursor-pointer" onclick="filterByCategory('fashion')">
+                        <div class="w-16 h-16 mx-auto mb-2 bg-pink-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-tshirt text-2xl text-pink-500"></i>
+                        </div>
+                        <p class="text-sm font-medium">Fashion</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 text-center hover-lift cursor-pointer" onclick="filterByCategory('electronics')">
+                        <div class="w-16 h-16 mx-auto mb-2 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-laptop text-2xl text-blue-500"></i>
+                        </div>
+                        <p class="text-sm font-medium">Electronics</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 text-center hover-lift cursor-pointer" onclick="filterByCategory('food')">
+                        <div class="w-16 h-16 mx-auto mb-2 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-utensils text-2xl accent-green"></i>
+                        </div>
+                        <p class="text-sm font-medium">Food & Sweets</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 text-center hover-lift cursor-pointer" onclick="filterByCategory('home')">
+                        <div class="w-16 h-16 mx-auto mb-2 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-home text-2xl text-purple-500"></i>
+                        </div>
+                        <p class="text-sm font-medium">Home & Living</p>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 text-center hover-lift cursor-pointer" onclick="filterByCategory('spices')">
+                        <div class="w-16 h-16 mx-auto mb-2 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-pepper-hot text-2xl text-yellow-600"></i>
+                        </div>
+                        <p class="text-sm font-medium">Spices</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Shops -->
+            <section class="mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-primary">Featured Shops</h3>
+                    <a href="#" onclick="showPage('explore')" class="text-accent-orange hover:underline">View All</a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="featuredShops">
+                    <!-- Shops will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Community Highlights -->
+            <section>
+                <h3 class="text-xl font-semibold text-primary mb-4">Community Highlights</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="communityHighlights">
+                    <!-- Community posts will be loaded here -->
+                </div>
+            </section>
+        </div>
+
+        <!-- Explore/Market Page -->
+        <div id="explorePage" class="page hidden">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <!-- Filters Sidebar -->
+                <div class="lg:w-1/4">
+                    <div class="bg-white rounded-xl p-6 card-shadow">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Filters</h3>
+                        
+                        <div class="mb-6">
+                            <h4 class="font-medium mb-2">Category</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="mr-2 text-accent-orange">
+                                    <span class="text-sm">Grocery</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="mr-2 text-accent-orange">
+                                    <span class="text-sm">Fashion</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="mr-2 text-accent-orange">
+                                    <span class="text-sm">Electronics</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="mr-2 text-accent-orange">
+                                    <span class="text-sm">Food & Sweets</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="mr-2 text-accent-orange">
+                                    <span class="text-sm">Home & Living</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <h4 class="font-medium mb-2">Rating</h4>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="rating" class="mr-2 text-accent-orange">
+                                    <span class="text-sm">4+ Stars</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="rating" class="mr-2 text-accent-orange">
+                                    <span class="text-sm">3+ Stars</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="rating" class="mr-2 text-accent-orange">
+                                    <span class="text-sm">All Ratings</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <h4 class="font-medium mb-2">Distance</h4>
+                            <select class="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                                <option>Within 1 km</option>
+                                <option>Within 5 km</option>
+                                <option>Within 10 km</option>
+                                <option>Any distance</option>
+                            </select>
+                        </div>
+
+                        <button class="w-full bg-accent-orange text-white py-2 rounded-lg hover:bg-orange-600 transition">Apply Filters</button>
+                    </div>
+                </div>
+
+                <!-- Map and Shops List -->
+                <div class="lg:w-3/4">
+                    <!-- Map View Toggle -->
+                    <div class="bg-white rounded-t-xl p-4 flex justify-between items-center">
+                        <div class="flex space-x-4">
+                            <button id="listViewBtn" onclick="toggleView('list')" class="px-4 py-2 rounded-lg bg-accent-orange text-white">List View</button>
+                            <button id="mapViewBtn" onclick="toggleView('map')" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700">Map View</button>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-sm text-gray-600">Sort by:</span>
+                            <select class="px-3 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                                <option>Nearest First</option>
+                                <option>Rating</option>
+                                <option>Newest First</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- List View -->
+                    <div id="listView" class="bg-white rounded-b-xl p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="shopsList">
+                            <!-- Shops will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Map View -->
+                    <div id="mapView" class="bg-white rounded-b-xl p-6 hidden">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Community Feed Page -->
+        <div id="communityPage" class="page hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Main Feed -->
+                <div class="lg:col-span-2">
+                    <!-- Create Post -->
+                    <div class="bg-white rounded-xl p-6 mb-6 card-shadow">
+                        <div class="flex items-start space-x-3">
+                            <img src="https://picsum.photos/seed/currentuser/50/50.jpg" alt="You" class="w-12 h-12 rounded-full">
+                            <div class="flex-1">
+                                <textarea placeholder="Share your experience with local shops..." class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange resize-none" rows="3"></textarea>
+                                <div class="flex justify-between items-center mt-3">
+                                    <div class="flex space-x-3">
+                                        <button class="text-gray-600 hover:text-accent-orange transition">
+                                            <i class="fas fa-image"></i> Photo
+                                        </button>
+                                        <button class="text-gray-600 hover:text-accent-orange transition">
+                                            <i class="fas fa-map-marker-alt"></i> Location
+                                        </button>
+                                        <button class="text-gray-600 hover:text-accent-orange transition">
+                                            <i class="fas fa-smile"></i> Feeling
+                                        </button>
+                                    </div>
+                                    <button class="px-4 py-2 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition">Post</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Community Posts -->
+                    <div id="communityPosts" class="space-y-6">
+                        <!-- Posts will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <!-- Trending Topics -->
+                    <div class="bg-white rounded-xl p-6 mb-6 card-shadow">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Trending Topics</h3>
+                        <div class="space-y-3">
+                            <div class="cursor-pointer hover:text-accent-orange transition">
+                                <p class="font-medium">#LocalBusiness</p>
+                                <p class="text-sm text-gray-600">234 posts</p>
+                            </div>
+                            <div class="cursor-pointer hover:text-accent-orange transition">
+                                <p class="font-medium">#ShopLocal</p>
+                                <p class="text-sm text-gray-600">189 posts</p>
+                            </div>
+                            <div class="cursor-pointer hover:text-accent-orange transition">
+                                <p class="font-medium">#SupportSmallBusiness</p>
+                                <p class="text-sm text-gray-600">156 posts</p>
+                            </div>
+                            <div class="cursor-pointer hover:text-accent-orange transition">
+                                <p class="font-medium">#CommunityLove</p>
+                                <p class="text-sm text-gray-600">142 posts</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Members -->
+                    <div class="bg-white rounded-xl p-6 card-shadow">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Active Members</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3">
+                                <img src="https://picsum.photos/seed/member1/40/40.jpg" alt="Member" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <p class="font-medium text-sm">Priya Sharma</p>
+                                    <p class="text-xs text-gray-600">Shop Owner</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <img src="https://picsum.photos/seed/member2/40/40.jpg" alt="Member" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <p class="font-medium text-sm">Raj Patel</p>
+                                    <p class="text-xs text-gray-600">Customer</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <img src="https://picsum.photos/seed/member3/40/40.jpg" alt="Member" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <p class="font-medium text-sm">Anita Verma</p>
+                                    <p class="text-xs text-gray-600">Shop Owner</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <img src="https://picsum.photos/seed/member4/40/40.jpg" alt="Member" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <p class="font-medium text-sm">Vikram Singh</p>
+                                    <p class="text-xs text-gray-600">Customer</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Profile Page -->
+        <div id="shopProfilePage" class="page hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Shop Info -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl overflow-hidden card-shadow">
+                        <!-- Cover Image -->
+                        <div class="h-48 bg-gradient-to-r from-accent-orange to-accent-brown relative">
+                            <img src="https://picsum.photos/seed/shopcover/800/300.jpg" alt="Shop Cover" class="w-full h-full object-cover opacity-80">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <h1 class="text-3xl font-bold text-white drop-shadow-lg">Krishna Grocery Store</h1>
+                            </div>
+                        </div>
+
+                        <!-- Shop Details -->
+                        <div class="p-6">
+                            <div class="flex flex-col md:flex-row md:items-start md:space-x-6">
+                                <div class="mb-4 md:mb-0">
+                                    <img src="https://picsum.photos/seed/shoplogo/150/150.jpg" alt="Shop Logo" class="w-32 h-32 rounded-xl object-cover">
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                                        <div>
+                                            <h2 class="text-2xl font-bold text-primary mb-2">Krishna Grocery Store</h2>
+                                            <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-star text-yellow-500 mr-1"></i>
+                                                    4.5 (124 reviews)
+                                                </span>
+                                                <span class="flex items-center">
+                                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                                    1.2 km away
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="flex space-x-2 mt-4 md:mt-0">
+                                            <button class="px-4 py-2 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition">
+                                                <i class="fas fa-phone mr-2"></i>Call
+                                            </button>
+                                            <button class="px-4 py-2 bg-accent-green text-white rounded-lg hover:bg-green-600 transition">
+                                                <i class="fas fa-comment mr-2"></i>Chat
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                        <div>
+                                            <p class="text-sm text-gray-600 mb-1">Address</p>
+                                            <p class="font-medium">123 Main Street, Sector 15, Delhi - 110001</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm text-gray-600 mb-1">Business Hours</p>
+                                            <p class="font-medium">Mon-Sat: 9:00 AM - 9:00 PM, Sun: 10:00 AM - 7:00 PM</p>
+                                        </div>
+                                    </div>
+
+                                    <p class="text-gray-700 mb-4">Your neighborhood grocery store with fresh vegetables, fruits, spices, and all daily essentials. We've been serving the community for over 20 years with quality products and friendly service.</p>
+
+                                    <div class="flex flex-wrap gap-2 mb-6">
+                                        <span class="px-3 py-1 bg-orange-100 text-accent-orange rounded-full text-sm">Grocery</span>
+                                        <span class="px-3 py-1 bg-green-100 text-green-600 rounded-full text-sm">Fresh Produce</span>
+                                        <span class="px-3 py-1 bg-blue-100 text-blue-600 rounded-full text-sm">Verified</span>
+                                        <span class="px-3 py-1 bg-purple-100 text-purple-600 rounded-full text-sm">Local Hero</span>
+                                    </div>
+
+                                    <!-- Tabs -->
+                                    <div class="border-b border-gray-200 mb-6">
+                                        <nav class="flex space-x-8">
+                                            <button onclick="switchTab('products')" class="tab-btn py-2 px-1 font-medium tab-active">Products</button>
+                                            <button onclick="switchTab('reviews')" class="tab-btn py-2 px-1 font-medium text-gray-600 hover:text-accent-orange transition">Reviews</button>
+                                            <button onclick="switchTab('about')" class="tab-btn py-2 px-1 font-medium text-gray-600 hover:text-accent-orange transition">About</button>
+                                        </nav>
+                                    </div>
+
+                                    <!-- Tab Content -->
+                                    <div id="productsTab" class="tab-content">
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="shopProducts">
+                                            <!-- Products will be loaded here -->
+                                        </div>
+                                    </div>
+
+                                    <div id="reviewsTab" class="tab-content hidden">
+                                        <div class="space-y-4" id="shopReviews">
+                                            <!-- Reviews will be loaded here -->
+                                        </div>
+                                    </div>
+
+                                    <div id="aboutTab" class="tab-content hidden">
+                                        <div class="space-y-4">
+                                            <div>
+                                                <h3 class="font-semibold text-primary mb-2">Our Story</h3>
+                                                <p class="text-gray-700">Krishna Grocery Store was established in 2002 by Mr. Ramesh Kumar with a vision to provide fresh and quality groceries to the local community. What started as a small shop has now grown into a trusted neighborhood store.</p>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold text-primary mb-2">What We Offer</h3>
+                                                <ul class="list-disc list-inside text-gray-700 space-y-1">
+                                                    <li>Fresh fruits and vegetables</li>
+                                                    <li>Organic products</li>
+                                                    <li>Spices and condiments</li>
+                                                    <li>Dairy products</li>
+                                                    <li>Household essentials</li>
+                                                    <li>Home delivery within 2 km radius</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold text-primary mb-2">Awards & Recognition</h3>
+                                                <p class="text-gray-700">Best Local Grocery Store 2021, Community Favorite 2022</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <!-- Shop Owner -->
+                    <div class="bg-white rounded-xl p-6 mb-6 card-shadow">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Shop Owner</h3>
+                        <div class="flex items-center space-x-3 mb-4">
+                            <img src="https://picsum.photos/seed/owner/60/60.jpg" alt="Owner" class="w-14 h-14 rounded-full">
+                            <div>
+                                <p class="font-medium">Ramesh Kumar</p>
+                                <p class="text-sm text-gray-600">Owner since 2002</p>
+                            </div>
+                        </div>
+                        <button class="w-full px-4 py-2 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition">View Profile</button>
+                    </div>
+
+                    <!-- Similar Shops -->
+                    <div class="bg-white rounded-xl p-6 card-shadow">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Similar Shops</h3>
+                        <div class="space-y-4" id="similarShops">
+                            <!-- Similar shops will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page (Customer) -->
+        <div id="dashboardPage" class="page hidden">
+            <h2 class="text-2xl font-bold text-primary mb-6">My Dashboard</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-shopping-bag text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-600">This Month</span>
+                    </div>
+                    <p class="text-2xl font-bold text-primary">12</p>
+                    <p class="text-sm text-gray-600">Orders Placed</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-heart text-green-600 text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-600">Total</span>
+                    </div>
+                    <p class="text-2xl font-bold text-primary">8</p>
+                    <p class="text-sm text-gray-600">Favorite Shops</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-comment text-purple-600 text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-600">Total</span>
+                    </div>
+                    <p class="text-2xl font-bold text-primary">24</p>
+                    <p class="text-sm text-gray-600">Reviews Given</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-rupee-sign text-accent-orange text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-600">Saved</span>
+                    </div>
+                    <p class="text-2xl font-bold text-primary">₹2,450</p>
+                    <p class="text-sm text-gray-600">With Offers</p>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="bg-white rounded-xl p-6 card-shadow mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-primary">Recent Orders</h3>
+                    <a href="#" onclick="showPage('orders')" class="text-accent-orange hover:underline">View All</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-gray-600 border-b">
+                                <th class="pb-3">Order ID</th>
+                                <th class="pb-3">Shop</th>
+                                <th class="pb-3">Date</th>
+                                <th class="pb-3">Amount</th>
+                                <th class="pb-3">Status</th>
+                                <th class="pb-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentOrders">
+                            <!-- Orders will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Favorite Shops -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-primary">Favorite Shops</h3>
+                    <a href="#" class="text-accent-orange hover:underline">View All</a>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="favoriteShops">
+                    <!-- Favorite shops will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Shopkeeper Dashboard Page -->
+        <div id="shopkeeperDashboardPage" class="page hidden">
+            <h2 class="text-2xl font-bold text-primary mb-6">Shopkeeper Dashboard</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-rupee-sign text-green-600 text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-600">Today</span>
+                    </div>
+                    <p class="text-2xl font-bold text-primary">₹8,450</p>
+                    <p class="text-sm text-gray-600">Today's Sales</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-blue-600 text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-600">Today</span>
+                    </div>
+                    <p class="text-2xl font-bold text-primary">23</p>
+                    <p class="text-sm text-gray-600">Orders Received</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-box text-accent-orange text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-600">Alert</span>
+                    </div>
+                    <p class="text-2xl font-bold text-primary">5</p>
+                    <p class="text-sm text-gray-600">Low Stock Items</p>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-star text-purple-600 text-xl"></i>
+                        </div>
+                        <span class="text-sm text-gray-600">Average</span>
+                    </div>
+                    <p class="text-2xl font-bold text-primary">4.6</p>
+                    <p class="text-sm text-gray-600">Customer Rating</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Stock Management -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-primary">Stock Management</h3>
+                        <button onclick="showAddProductModal()" class="px-3 py-1 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition text-sm">
+                            <i class="fas fa-plus mr-1"></i>Add Product
+                        </button>
+                    </div>
+                    <div class="space-y-3" id="stockManagement">
+                        <!-- Stock items will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold text-primary">Recent Orders</h3>
+                        <a href="#" class="text-accent-orange hover:underline text-sm">View All</a>
+                    </div>
+                    <div class="space-y-3" id="shopkeeperOrders">
+                        <!-- Orders will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Chart -->
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <h3 class="text-lg font-semibold text-primary mb-4">Sales Overview</h3>
+                <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+                    <p class="text-gray-500">Sales chart would be displayed here (Chart.js integration needed)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help & Support Page -->
+        <div id="helpPage" class="page hidden">
+            <h2 class="text-2xl font-bold text-primary mb-6">Help & Support</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- FAQ Section -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl p-6 card-shadow mb-6">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Frequently Asked Questions</h3>
+                        <div class="space-y-4" id="faqSection">
+                            <!-- FAQ items will be loaded here -->
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div class="bg-white rounded-xl p-6 card-shadow">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Contact Support</h3>
+                        <form onsubmit="submitSupportForm(event)">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Your Email</label>
+                                <input type="email" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Subject</label>
+                                <input type="text" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                                <textarea required rows="4" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange"></textarea>
+                            </div>
+                            <button type="submit" class="px-6 py-2 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <!-- Quick Links -->
+                    <div class="bg-white rounded-xl p-6 mb-6 card-shadow">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Quick Links</h3>
+                        <div class="space-y-3">
+                            <a href="#" class="block text-gray-700 hover:text-accent-orange transition">
+                                <i class="fas fa-book mr-2"></i>User Guide
+                            </a>
+                            <a href="#" class="block text-gray-700 hover:text-accent-orange transition">
+                                <i class="fas fa-shield-alt mr-2"></i>Trust & Safety
+                            </a>
+                            <a href="#" class="block text-gray-700 hover:text-accent-orange transition">
+                                <i class="fas fa-file-contract mr-2"></i>Terms of Service
+                            </a>
+                            <a href="#" class="block text-gray-700 hover:text-accent-orange transition">
+                                <i class="fas fa-lock mr-2"></i>Privacy Policy
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Contact Info -->
+                    <div class="bg-white rounded-xl p-6 card-shadow">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Contact Information</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-phone text-accent-orange mt-1"></i>
+                                <div>
+                                    <p class="font-medium">Phone</p>
+                                    <p class="text-sm text-gray-600">+91 98765 43210</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-envelope text-accent-orange mt-1"></i>
+                                <div>
+                                    <p class="font-medium">Email</p>
+                                    <p class="text-sm text-gray-600">support@vyaparsatu.com</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <i class="fas fa-clock text-accent-orange mt-1"></i>
+                                <div>
+                                    <p class="font-medium">Support Hours</p>
+                                    <p class="text-sm text-gray-600">Mon-Sat: 9:00 AM - 6:00 PM</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Page -->
+        <div id="ordersPage" class="page hidden">
+            <h2 class="text-2xl font-bold text-primary mb-6">My Orders</h2>
+            
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                    <div class="flex space-x-4 mb-4 md:mb-0">
+                        <button onclick="filterOrders('all')" class="px-4 py-2 bg-accent-orange text-white rounded-lg">All Orders</button>
+                        <button onclick="filterOrders('pending')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">Pending</button>
+                        <button onclick="filterOrders('processing')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">Processing</button>
+                        <button onclick="filterOrders('delivered')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">Delivered</button>
+                        <button onclick="filterOrders('cancelled')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">Cancelled</button>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600">Sort by:</span>
+                        <select class="px-3 py-1 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                            <option>Latest First</option>
+                            <option>Oldest First</option>
+                            <option>Price: High to Low</option>
+                            <option>Price: Low to High</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="space-y-4" id="ordersList">
+                    <!-- Orders will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profilePage" class="page hidden">
+            <h2 class="text-2xl font-bold text-primary mb-6">My Profile</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Profile Info -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl p-6 card-shadow mb-6">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Personal Information</h3>
+                        <form onsubmit="updateProfile(event)">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                    <input type="text" value="Rahul" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                    <input type="text" value="Sharma" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input type="email" value="rahul.sharma@example.com" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                                <input type="tel" value="+91 98765 43210" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                <textarea rows="3" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">123, ABC Apartments, Sector 15, Delhi - 110001</textarea>
+                            </div>
+                            <button type="submit" class="px-6 py-2 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition">Update Profile</button>
+                        </form>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="bg-white rounded-xl p-6 card-shadow">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Change Password</h3>
+                        <form onsubmit="changePassword(event)">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                                <input type="password" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                                <input type="password" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                                <input type="password" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                            </div>
+                            <button type="submit" class="px-6 py-2 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition">Change Password</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <!-- Profile Picture -->
+                    <div class="bg-white rounded-xl p-6 mb-6 card-shadow">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Profile Picture</h3>
+                        <div class="flex flex-col items-center">
+                            <img src="https://picsum.photos/seed/currentuser/150/150.jpg" alt="Profile" class="w-32 h-32 rounded-full mb-4">
+                            <button class="px-4 py-2 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition">Change Picture</button>
+                        </div>
+                    </div>
+
+                    <!-- Account Settings -->
+                    <div class="bg-white rounded-xl p-6 card-shadow">
+                        <h3 class="text-lg font-semibold text-primary mb-4">Account Settings</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <span class="text-sm">Email Notifications</span>
+                                <input type="checkbox" checked class="toggle-checkbox">
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <span class="text-sm">SMS Notifications</span>
+                                <input type="checkbox" class="toggle-checkbox">
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <span class="text-sm">Location Sharing</span>
+                                <input type="checkbox" checked class="toggle-checkbox">
+                            </label>
+                            <label class="flex items-center justify-between cursor-pointer">
+                                <span class="text-sm">Profile Visibility</span>
+                                <input type="checkbox" checked class="toggle-checkbox">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Cart Sidebar -->
+    <div id="cartSidebar" class="fixed right-0 top-0 h-full w-96 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex flex-col h-full">
+            <!-- Cart Header -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-primary">Shopping Cart</h3>
+                <button onclick="closeCartSidebar()" class="text-gray-500 hover:text-gray-700 transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Cart Items -->
+            <div id="cartItems" class="flex-1 overflow-y-auto p-4">
+                <!-- Cart items will be loaded here -->
+            </div>
+            
+            <!-- Cart Footer -->
+            <div class="border-t border-gray-200 p-4">
+                <!-- Price Breakdown -->
+                <div class="space-y-2 mb-4">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Subtotal:</span>
+                        <span id="subtotal">₹0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Discount:</span>
+                        <span id="discount" class="text-green-600">-₹0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Delivery Fee:</span>
+                        <span id="deliveryFee">₹0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Taxes (5%):</span>
+                        <span id="taxes">₹0.00</span>
+                    </div>
+                    <hr class="my-2">
+                    <div class="flex justify-between">
+                        <span class="font-semibold text-primary">Total:</span>
+                        <span id="cartTotal" class="text-xl font-bold text-primary">₹0.00</span>
+                    </div>
+                </div>
+                <button onclick="showCheckoutModal()" class="w-full px-4 py-3 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition font-medium">
+                    Proceed to Checkout
+                </button>
+                <button onclick="clearCart()" class="w-full mt-2 px-4 py-2 text-red-500 hover:bg-red-50 rounded-lg transition">
+                    Clear Cart
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="checkoutModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-primary">Checkout</h2>
+                <button onclick="closeCheckoutModal()" class="text-gray-500 hover:text-gray-700 transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <h3 class="font-semibold text-primary mb-3">Order Summary</h3>
+                <div id="checkoutItems" class="space-y-2 mb-3">
+                    <!-- Order items will be loaded here -->
+                </div>
+                <div class="border-t pt-3 space-y-1">
+                    <div class="flex justify-between text-sm">
+                        <span>Subtotal:</span>
+                        <span id="checkoutSubtotal">₹0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Discount:</span>
+                        <span id="checkoutDiscount" class="text-green-600">-₹0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Delivery Fee:</span>
+                        <span id="checkoutDelivery">₹0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Taxes (5%):</span>
+                        <span id="checkoutTaxes">₹0.00</span>
+                    </div>
+                    <div class="flex justify-between font-bold text-lg mt-2">
+                        <span>Total:</span>
+                        <span id="checkoutTotal">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Options -->
+            <div class="mb-6">
+                <h3 class="font-semibold text-primary mb-3">Delivery Options</h3>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="delivery" value="home" checked class="mr-3" onchange="updateDeliveryOption('home')">
+                        <div class="flex-1">
+                            <div class="font-medium">Home Delivery</div>
+                            <div class="text-sm text-gray-600">Get it delivered to your doorstep</div>
+                        </div>
+                        <span id="homeDeliveryPrice" class="text-primary font-medium">₹0.00</span>
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="delivery" value="pickup" class="mr-3" onchange="updateDeliveryOption('pickup')">
+                        <div class="flex-1">
+                            <div class="font-medium">Store Pickup</div>
+                            <div class="text-sm text-gray-600">Pick up from the store</div>
+                        </div>
+                        <span class="text-green-600 font-medium">FREE</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Delivery Address -->
+            <div class="mb-6" id="deliveryAddressSection">
+                <h3 class="font-semibold text-primary mb-3">Delivery Address</h3>
+                <select id="addressSelect" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange mb-3">
+                    <option value="">Select Address</option>
+                    <option value="123, ABC Apartments, Sector 15, Delhi - 110001">Home - 123, ABC Apartments, Sector 15, Delhi - 110001</option>
+                    <option value="456, XYZ Colony, Sector 22, Delhi - 110022">Work - 456, XYZ Colony, Sector 22, Delhi - 110022</option>
+                </select>
+                <button type="button" onclick="showAddAddressForm()" class="text-accent-orange hover:underline text-sm">
+                    + Add New Address
+                </button>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="mb-6">
+                <h3 class="font-semibold text-primary mb-3">Payment Method</h3>
+                <div class="space-y-3">
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="payment" value="online" checked class="mr-3">
+                        <div class="flex-1">
+                            <div class="font-medium">Online Payment</div>
+                            <div class="text-sm text-gray-600">Pay via UPI, Credit/Debit Card, NetBanking</div>
+                        </div>
+                        <i class="fas fa-mobile-alt text-gray-600"></i>
+                    </label>
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                        <input type="radio" name="payment" value="cod" class="mr-3">
+                        <div class="flex-1">
+                            <div class="font-medium">Cash on Delivery</div>
+                            <div class="text-sm text-gray-600">Pay when you receive your order</div>
+                        </div>
+                        <i class="fas fa-money-bill-wave text-gray-600"></i>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Promo Code -->
+            <div class="mb-6">
+                <h3 class="font-semibold text-primary mb-3">Promo Code</h3>
+                <div class="flex space-x-2">
+                    <input type="text" id="promoCode" placeholder="Enter promo code" class="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                    <button onclick="applyPromoCode()" class="px-4 py-2 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition">
+                        Apply
+                    </button>
+                </div>
+                <div id="promoMessage" class="mt-2 text-sm"></div>
+            </div>
+
+            <!-- Place Order Button -->
+            <button onclick="placeOrder()" class="w-full px-6 py-3 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition font-medium">
+                Place Order
+            </button>
+        </div>
+    </div>
+
+    <!-- Add Address Modal -->
+    <div id="addAddressModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md">
+            <h3 class="text-lg font-semibold text-primary mb-4">Add New Address</h3>
+            <form onsubmit="addNewAddress(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Address Type</label>
+                    <select required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                        <option value="Home">Home</option>
+                        <option value="Work">Work</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
+                    <textarea required rows="2" name="street" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                        <input type="text" required value="Delhi" name="city" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Pincode</label>
+                        <input type="text" required pattern="[0-9]{6}" name="pincode" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                    </div>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="submit" class="flex-1 px-4 py-2 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition">
+                        Add Address
+                    </button>
+                    <button type="button" onclick="closeAddAddressModal()" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Product Modal (for shopkeeper) -->
+    <div id="addProductModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-primary">Add New Product</h3>
+                <button onclick="closeAddProductModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form onsubmit="addProduct(event)">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Product Name</label>
+                    <input type="text" required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                    <select required class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                        <option value="">Select Category</option>
+                        <option value="grocery">Grocery</option>
+                        <option value="vegetables">Vegetables</option>
+                        <option value="fruits">Fruits</option>
+                        <option value="dairy">Dairy</option>
+                        <option value="spices">Spices</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Price (₹)</label>
+                    <input type="number" required min="0" step="0.01" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
+                    <input type="number" required min="0" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Low Stock Alert</label>
+                    <input type="number" required min="0" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange">
+                </div>
+                <button type="submit" class="w-full px-4 py-2 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition">Add Product</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Success Modal -->
+    <div id="paymentSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-8 text-center max-w-md">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-green-600 text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-primary mb-2">Order Placed Successfully!</h2>
+            <p class="text-gray-600 mb-6">Your order has been placed and will be delivered soon.</p>
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <p class="text-sm text-gray-600 mb-1">Order ID</p>
+                <p id="orderId" class="font-bold text-primary">ORD123456</p>
+            </div>
+            <button onclick="closePaymentSuccessModal()" class="w-full px-4 py-2 bg-accent-orange text-white rounded-lg hover:bg-orange-600 transition">
+                Continue Shopping
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg transform translate-y-full transition-transform duration-300 z-50">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="toastMessage">Success!</span>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
